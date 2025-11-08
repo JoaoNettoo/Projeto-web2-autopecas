@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  web:
+    build: ./backend
+    container_name: autopecas_web
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/db.sqlite3:/app/db.sqlite3
+    environment:
+      - DEBUG=1
