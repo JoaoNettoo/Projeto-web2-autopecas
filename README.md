@@ -22,7 +22,7 @@ Django
 
 Django REST Framework (DRF)
 
-PostgreSQL
+Sqlite
 
 Frontend
 
