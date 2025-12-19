@@ -14,7 +14,7 @@ class Fornecedor(models.Model):
 
 class Peca(models.Model):
     nome = models.CharField(max_length=255)
-    codigo_sku = models.CharField(max_length=100, unique=True)
+    codigo = models.CharField(max_length=100, unique=True)
     marca = models.CharField(max_length=100, blank=True, null=True)
     modelo_veiculo = models.CharField(max_length=100, blank=True, null=True)
     categoria = models.CharField(max_length=100, blank=True, null=True)
