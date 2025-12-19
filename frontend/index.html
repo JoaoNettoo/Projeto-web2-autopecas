@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Autopeças JB</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Autopeças JB</h1>
+    <nav>
+        <input type="text" id="search" placeholder="Buscar peça">
+        <button id="btn-login">Login</button>
+        <button id="btn-register">Criar Conta</button>
+        <button id="btn-logout">Sair</button>
+        <button id="btn-carrinho">Carrinho (<span id="carrinho-count">0</span>)</button>
+    </nav>
+</header>
+
+<main>
+    <div id="pecas-container"></div>
+</main>
+
+<script type="module">
+import { login, register, logout } from './js/auth.js';
+import { carregarPecas, updateCarrinhoCount } from './js/pecas.js';
+
+// Inicializar peças
+carregarPecas();
+updateCarrinhoCount();
+
+// Navegação
+document.getElementById('btn-carrinho').addEventListener('click', () => {
+    window.location.href = 'carrinho.html';
+});
+
+// Login
+document.getElementById('btn-login').addEventListener('click', async () => {
+    const username = prompt('Usuário:');
+    const password = prompt('Senha:');
+    const ok = await login(username, password);
+    if(ok) alert('Login realizado com sucesso!');
+    else alert('Erro no login!');
+});
+
+// Criar Conta
+document.getElementById('btn-register').addEventListener('click', async () => {
+    const username = prompt('Novo usuário:');
+    const password = prompt('Senha:');
+    const ok = await register(username, password);
+    if(ok) alert('Conta criada com sucesso!');
+    else alert('Erro ao criar conta!');
+});
+
+// Logout
+document.getElementById('btn-logout').addEventListener('click', () => {
+    logout();
+    alert('Logout realizado!');
+});
+</script>
+
+</body>
+</html>
