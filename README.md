@@ -58,9 +58,4 @@ O Autopeças JB é um sistema web para gerenciamento de peças automotivas, dese
 
 ---
 
-## Instalação e Configuração
 
-1. Clone o repositório:  
-```bash
-git clone https://github.com/SEU_USUARIO/autopecas-jb.git
-cd autopecas-jb
