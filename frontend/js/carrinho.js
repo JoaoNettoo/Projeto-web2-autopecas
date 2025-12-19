@@ -1,5 +1,5 @@
 import { getToken } from './auth.js';
-const apiUrl = 'http://127.0.0.1:8000/api/';
+const apiUrl = 'http://127.0.0.1:8001/'; // aponta para o microsserviço
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
 // Atualizar tabela do carrinho
@@ -24,32 +24,39 @@ export function atualizarTabela() {
         tbody.appendChild(tr);
 
         // Remover item
-        document.getElementById(`remover-${index}`).addEventListener('click', () => {
-            carrinho.splice(index,1);
-            localStorage.setItem('carrinho', JSON.stringify(carrinho));
-            atualizarTabela();
-        });
+        const btnRemover = document.getElementById(`remover-${index}`);
+        if(btnRemover){
+            btnRemover.addEventListener('click', () => {
+                carrinho.splice(index,1);
+                localStorage.setItem('carrinho', JSON.stringify(carrinho));
+                atualizarTabela();
+            });
+        }
 
         // Alterar quantidade
-        document.getElementById(`qtd-${index}`).addEventListener('change', (e) => {
-            const qtd = parseInt(e.target.value) || 1;
-            carrinho[index].quantidade = qtd;
-            localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        const inputQtd = document.getElementById(`qtd-${index}`);
+        if(inputQtd){
+            inputQtd.addEventListener('change', (e) => {
+                const qtd = parseInt(e.target.value) || 1;
+                carrinho[index].quantidade = qtd;
+                localStorage.setItem('carrinho', JSON.stringify(carrinho));
 
-            // Recalcular total
-            let novoTotal = 0;
-            carrinho.forEach(it => {
-                novoTotal += parseFloat(it.preco) * (it.quantidade || 1);
+                // Recalcular total
+                let novoTotal = 0;
+                carrinho.forEach(it => {
+                    novoTotal += parseFloat(it.preco) * (it.quantidade || 1);
+                });
+                const totalDiv = document.getElementById('total');
+                if(totalDiv) totalDiv.textContent = `Total: R$ ${novoTotal.toFixed(2)}`;
             });
-            document.getElementById('total').textContent = `Total: R$ ${novoTotal.toFixed(2)}`;
-        });
+        }
     });
 
     const totalDiv = document.getElementById('total');
     if (totalDiv) totalDiv.textContent = `Total: R$ ${total.toFixed(2)}`;
 }
 
-// Finalizar compra
+// Finalizar compra usando microsserviço
 export async function finalizarCompra() {
     const token = getToken();
     if(!token){
@@ -71,24 +78,24 @@ export async function finalizarCompra() {
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
-                'Authorization': 'Bearer '+token
+                'Authorization': 'Bearer '+token // se microsserviço exigir token
             },
             body: JSON.stringify(pedido)
         });
 
         if(res.ok){
-            alert('Pedido finalizado com sucesso!');
+            alert('Pedido finalizado com sucesso pelo microsserviço!');
             carrinho = [];
             localStorage.setItem('carrinho', JSON.stringify(carrinho));
             atualizarTabela();
         } else {
             const err = await res.json();
-            alert('Erro ao finalizar pedido');
-            console.log(err);
+            console.error('Erro ao finalizar pedido pelo microsserviço:', err);
+            alert('Erro ao finalizar pedido pelo microsserviço');
         }
     } catch(e){
-        console.error(e);
-        alert('Erro ao conectar com o servidor');
+        console.error('Erro de conexão com o microsserviço:', e);
+        alert('Erro ao conectar com o microsserviço');
     }
 }
 
