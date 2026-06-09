@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Carrinho - Autopeças JB</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <h1>Autopeças JB</h1>
+    <div>
+        <button id="btn-home">Home</button>
+        <button id="btn-logout">Sair</button>
+    </div>
+</header>
+
+<main>
+    <h2>Meu Carrinho</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Peça</th>
+                <th>Preço</th>
+                <th>Quantidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="carrinho-tbody"></tbody>
+    </table>
+    <div id="total">Total: R$ 0,00</div>
+    <button id="btn-finalizar">Finalizar Compra</button>
+</main>
+
+<script type="module">
+import { logout, getToken } from './js/auth.js';
+import { atualizarTabela, finalizarCompra } from './js/carrinho.js';
+
+document.getElementById('btn-home').addEventListener('click', () => {
+    window.location.href = 'index.html';
+});
+
+document.getElementById('btn-logout').addEventListener('click', () => {
+    logout();
+    window.location.href = 'index.html';
+});
+
+document.getElementById('btn-finalizar').addEventListener('click', finalizarCompra);
+
+// Atualiza tabela somente se o tbody existir
+atualizarTabela();
+</script>
+
+</body>
+</html>
