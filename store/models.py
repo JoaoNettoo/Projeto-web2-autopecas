@@ -51,3 +51,13 @@ class ItemPedido(models.Model):
 
     def __str__(self):
         return f"{self.quantidade} x {self.peca}"
+
+class MensagemSuporte(models.Model):
+    cliente_nome = models.CharField(max_length=255)
+    email = models.EmailField()
+    assunto = models.CharField(max_length=255)
+    mensagem = models.TextField()
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Chamado de {self.cliente_nome} - {self.assunto}"

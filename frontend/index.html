@@ -7,6 +7,38 @@
 </head>
 <body>
 
+<!-- Painel de Controle de Segurança (XSS Demo) -->
+<div id="xss-security-panel" class="security-panel">
+    <div class="security-title">
+        🛡️ Painel de Segurança (Demonstração Acadêmica)
+        <span id="xss-status-badge" class="security-badge secure">Seguro</span>
+    </div>
+    <div class="security-toggle-container">
+        <label for="xss-mode-select">Configuração de Segurança:</label>
+        <select id="xss-mode-select" class="security-select">
+            <option value="vulnerable">Modo Vulnerável (Inseguro - innerHTML)</option>
+            <option value="secure" selected>Modo Seguro (Corrigido - textContent)</option>
+        </select>
+    </div>
+</div>
+
+<!-- Painel Auxiliar de Payloads Acadêmicos -->
+<div class="payload-helper-box">
+    <h3>📝 Payloads Acadêmicos para Testes (Clique para copiar)</h3>
+    <div class="payload-list">
+        <div class="payload-row">
+            <span class="payload-type-badge">DOM / Stored</span>
+            <span class="payload-code" id="payload-dom">&lt;img src=x onerror="alert('Ataque XSS Executado! Local do teste: ' + document.domain)"&gt;</span>
+            <button class="payload-copy-btn" id="btn-copy-dom">Copiar</button>
+        </div>
+        <div class="payload-row">
+            <span class="payload-type-badge">Reflected</span>
+            <span class="payload-code" id="payload-reflected">&lt;img src=x onerror="alert('Reflected XSS! Token JWT exposto: ' + localStorage.getItem('access_token'))"&gt;</span>
+            <button class="payload-copy-btn" id="btn-copy-reflected">Copiar</button>
+        </div>
+    </div>
+</div>
+
 <header>
     <h1>Autopeças JB</h1>
     <nav>
@@ -15,28 +47,37 @@
         <button id="btn-register">Criar Conta</button>
         <button id="btn-logout">Sair</button>
         <button id="btn-carrinho">Carrinho (<span id="carrinho-count">0</span>)</button>
+        <button id="btn-suporte">Fale Conosco</button>
+        <button id="btn-admin">Painel Admin</button>
     </nav>
 </header>
+
+<!-- Banner de Boas-Vindas Dinâmico (Vulnerabilidade DOM XSS) -->
+<div id="welcome-banner" style="background-color: #2c3e50; color: white; padding: 15px; text-align: center; border-radius: 8px; margin: 15px 0; display: none; border-left: 5px solid #e74c3c;"></div>
+
+<div id="search-results-area"></div>
 
 <main>
     <div id="pecas-container"></div>
 
     <hr>
 
-    <section id="comentarios-section">
-        <h2>Comentários</h2>
-
-        <textarea id="comentario-input" placeholder="Escreva seu comentário"></textarea>
-        <br>
-        <button id="btn-comentar">Enviar</button>
-
-        <div id="comentarios-lista"></div>
-    </section>
+    <!-- Seção de Comentários Removida para substituição por Fale Conosco -->
 </main>
 
 <script type="module">
 import { login, register, logout } from './js/auth.js';
 import { carregarPecas, updateCarrinhoCount } from './js/pecas.js';
+
+// Copiar payloads
+document.getElementById('btn-copy-dom').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('payload-dom').textContent);
+    alert('Payload DOM/Stored copiado!');
+});
+document.getElementById('btn-copy-reflected').addEventListener('click', () => {
+    navigator.clipboard.writeText(document.getElementById('payload-reflected').textContent);
+    alert('Payload Reflected copiado!');
+});
 
 // Inicializar peças
 carregarPecas();
@@ -45,6 +86,12 @@ updateCarrinhoCount();
 // Navegação
 document.getElementById('btn-carrinho').addEventListener('click', () => {
     window.location.href = 'carrinho.html';
+});
+document.getElementById('btn-suporte').addEventListener('click', () => {
+    window.location.href = 'suporte.html';
+});
+document.getElementById('btn-admin').addEventListener('click', () => {
+    window.location.href = 'admin_dashboard.html';
 });
 
 // Login

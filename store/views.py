@@ -7,8 +7,8 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Fornecedor, Peca, Pedido
-from .serializers import FornecedorSerializer, PecaSerializer, PedidoSerializer
+from .models import Fornecedor, Peca, Pedido, MensagemSuporte
+from .serializers import FornecedorSerializer, PecaSerializer, PedidoSerializer, MensagemSuporteSerializer
 
 # ----- ViewSets existentes -----
 
@@ -83,3 +83,8 @@ def login(request):
         'refresh': str(refresh),
         'access': str(refresh.access_token)
     })
+
+class MensagemSuporteViewSet(viewsets.ModelViewSet):
+    queryset = MensagemSuporte.objects.all().order_by('-criado_em')
+    serializer_class = MensagemSuporteSerializer
+    permission_classes = [AllowAny]

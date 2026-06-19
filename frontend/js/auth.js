@@ -1,4 +1,5 @@
-const apiUrl = 'http://127.0.0.1:8000/api/';
+const apiHost = window.location.hostname;
+const apiUrl = `http://${apiHost}:8000/api/`;
 let token = localStorage.getItem('access_token') || null;
 
 // Atualizar UI dos botões

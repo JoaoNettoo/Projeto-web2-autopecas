@@ -1,6 +1,11 @@
 import { getToken } from './auth.js';
-const apiUrl = 'http://127.0.0.1:8001/'; // aponta para o microsserviço
+const apiHost = window.location.hostname;
+const apiUrl = `http://${apiHost}:8001/`; // aponta para o microsserviço
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+function isSafeMode() {
+    return localStorage.getItem('xss_safe_mode') !== 'vulnerable';
+}
 
 // Atualizar tabela do carrinho
 export function atualizarTabela() {
@@ -15,12 +20,24 @@ export function atualizarTabela() {
         total += parseFloat(item.preco) * quantidade;
 
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${item.nome}</td>
-            <td>R$ ${item.preco}</td>
-            <td><input type="number" min="1" value="${quantidade}" id="qtd-${index}" style="width:50px;"></td>
-            <td><button id="remover-${index}">Remover</button></td>
-        `;
+        if (isSafeMode()) {
+            // Modo Seguro: Criar esqueleto e injetar nome via textContent
+            tr.innerHTML = `
+                <td class="item-name"></td>
+                <td>R$ ${item.preco}</td>
+                <td><input type="number" min="1" value="${quantidade}" id="qtd-${index}" style="width:50px;"></td>
+                <td><button id="remover-${index}">Remover</button></td>
+            `;
+            tr.querySelector('.item-name').textContent = item.nome;
+        } else {
+            // Modo Vulnerável: Injetar diretamente via template string (XSS)
+            tr.innerHTML = `
+                <td>${item.nome}</td>
+                <td>R$ ${item.preco}</td>
+                <td><input type="number" min="1" value="${quantidade}" id="qtd-${index}" style="width:50px;"></td>
+                <td><button id="remover-${index}">Remover</button></td>
+            `;
+        }
         tbody.appendChild(tr);
 
         // Remover item

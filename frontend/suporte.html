@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Suporte Técnico - Autopeças JB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .suporte-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+        }
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .btn-enviar {
+            width: 100%;
+            padding: 12px;
+            background-color: #ff6600;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-enviar:hover {
+            background-color: #e65c00;
+        }
+        .nav-back {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .nav-back a {
+            color: #0099ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-back a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Autopeças JB</h1>
+    <nav>
+        <button id="btn-home">Voltar ao Catálogo</button>
+    </nav>
+</header>
+
+<main>
+    <div class="suporte-container">
+        <h2>Fale Conosco / Suporte Técnico</h2>
+        <p style="margin-bottom: 20px; color: #666;">Relate problemas técnicos ou dúvidas sobre peças. Nossa equipe administrativa analisará sua solicitação.</p>
+        
+        <form id="suporte-form">
+            <div class="form-group">
+                <label for="nome">Seu Nome:</label>
+                <input type="text" id="nome" required placeholder="Ex: João da Silva">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Seu E-mail:</label>
+                <input type="email" id="email" required placeholder="Ex: joao@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="assunto">Assunto:</label>
+                <input type="text" id="assunto" required placeholder="Ex: Defeito na peça ou erro no catálogo">
+            </div>
+            
+            <div class="form-group">
+                <label for="mensagem">Mensagem / Descrição:</label>
+                <textarea id="mensagem" required placeholder="Descreva os detalhes da solicitação..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-enviar">Enviar Chamado</button>
+        </form>
+
+        <div class="nav-back">
+            <a href="index.html">← Retornar à Página Inicial</a>
+        </div>
+    </div>
+</main>
+
+<script>
+    const apiHost = window.location.hostname;
+    const apiUrl = `http://${apiHost}:8000/api/suporte/`;
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    document.getElementById('suporte-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const data = {
+            cliente_nome: document.getElementById('nome').value,
+            email: document.getElementById('email').value,
+            assunto: document.getElementById('assunto').value,
+            mensagem: document.getElementById('mensagem').value
+        };
+
+        try {
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Sua mensagem foi registrada com sucesso! Nossa equipe de administração analisará o chamado.');
+                document.getElementById('suporte-form').reset();
+            } else {
+                console.error(await res.text());
+                alert('Erro ao enviar mensagem de suporte.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erro de conexão com o servidor.');
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel Admin - Autopeças JB</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .ticket-list {
+            margin-top: 20px;
+        }
+        .ticket-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .ticket-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        .ticket-body {
+            font-size: 15px;
+            color: #334155;
+            background-color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Painel de Controle de Segurança (XSS Demo) -->
+<div id="xss-security-panel" class="security-panel">
+    <div class="security-title">
+        🛡️ Painel de Segurança (Demonstração Acadêmica)
+        <span id="xss-status-badge" class="security-badge secure">Seguro</span>
+    </div>
+    <div class="security-toggle-container">
+        <label for="xss-mode-select">Configuração de Segurança:</label>
+        <select id="xss-mode-select" class="security-select">
+            <option value="vulnerable">Modo Vulnerável (Inseguro - innerHTML)</option>
+            <option value="secure" selected>Modo Seguro (Corrigido - textContent)</option>
+        </select>
+    </div>
+</div>
+
+<header>
+    <h1>Autopeças JB - Painel de Controle Administrativo</h1>
+    <nav>
+        <button id="btn-home">Voltar ao Catálogo</button>
+        <button id="btn-logout">Sair</button>
+    </nav>
+</header>
+
+<main>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h2>Fila de Chamados de Suporte Técnico</h2>
+            <button id="btn-refresh" style="padding: 6px 12px; background-color: #0099ff; border: none; color: white; border-radius: 4px; cursor: pointer;">Atualizar Chamados</button>
+        </div>
+        
+        <div id="auth-warning" style="display: none; background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            ⚠️ <strong>Atenção:</strong> Você não está autenticado como administrador. Faça login no catálogo principal para gerar sua sessão JWT.
+        </div>
+
+        <div class="ticket-list" id="tickets-container">
+            <p style="color: #666; text-align: center;">Carregando chamados...</p>
+        </div>
+    </div>
+</main>
+
+<script type="module">
+    import { logout, getToken } from './js/auth.js';
+
+    const apiHost = window.location.hostname;
+    const apiUrl = `http://${apiHost}:8000/api/suporte/`;
+
+    // Funções de verificação do modo de segurança
+    function isSafeMode() {
+        return localStorage.getItem('xss_safe_mode') !== 'vulnerable';
+    }
+
+    function updateSecurityUI(mode) {
+        const badge = document.getElementById('xss-status-badge');
+        const panel = document.getElementById('xss-security-panel');
+        if (!badge || !panel) return;
+
+        if (mode === 'secure') {
+            badge.textContent = 'Seguro';
+            badge.className = 'security-badge secure';
+            panel.classList.add('safe-mode');
+        } else {
+            badge.textContent = 'Vulnerável';
+            badge.className = 'security-badge vulnerable';
+            panel.classList.remove('safe-mode');
+        }
+    }
+
+    function initSecurityToggle() {
+        const select = document.getElementById('xss-mode-select');
+        if (!select) return;
+
+        const savedMode = localStorage.getItem('xss_safe_mode') || 'secure';
+        select.value = savedMode;
+        updateSecurityUI(savedMode);
+
+        select.addEventListener('change', (e) => {
+            const newMode = e.target.value;
+            localStorage.setItem('xss_safe_mode', newMode);
+            updateSecurityUI(newMode);
+            carregarChamados();
+        });
+    }
+
+    async function carregarChamados() {
+        const container = document.getElementById('tickets-container');
+        if (!container) return;
+
+        const token = getToken();
+        if (!token) {
+            document.getElementById('auth-warning').style.display = 'block';
+        } else {
+            document.getElementById('auth-warning').style.display = 'none';
+        }
+
+        try {
+            const res = await fetch(apiUrl);
+            if (!res.ok) {
+                container.innerHTML = '<p style="color: #ef4444; text-align: center;">Erro ao carregar chamados.</p>';
+                return;
+            }
+            const tickets = await res.json();
+            
+            if (tickets.length === 0) {
+                container.innerHTML = '<p style="color: #666; text-align: center;">Nenhum chamado pendente na fila.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            tickets.forEach(ticket => {
+                const card = document.createElement('div');
+                card.className = 'ticket-card';
+
+                if (isSafeMode()) {
+                    // MODO SEGURO: Injeta dados usando textContent para prevenir XSS
+                    card.innerHTML = `
+                        <div class="ticket-header">
+                            <span class="ticket-client"></span>
+                            <span class="ticket-date"></span>
+                        </div>
+                        <div class="ticket-title"></div>
+                        <div class="ticket-body"></div>
+                    `;
+                    card.querySelector('.ticket-client').textContent = `Enviado por: ${ticket.cliente_nome} (${ticket.email})`;
+                    card.querySelector('.ticket-date').textContent = new Date(ticket.criado_em).toLocaleString();
+                    card.querySelector('.ticket-title').textContent = ticket.assunto;
+                    card.querySelector('.ticket-body').textContent = ticket.mensagem;
+                } else {
+                    // MODO VULNERÁVEL: Injeta diretamente no innerHTML (Stored XSS)
+                    card.innerHTML = `
+                        <div class="ticket-header">
+                            <span>Enviado por: ${ticket.cliente_nome} (${ticket.email})</span>
+                            <span>${new Date(ticket.criado_em).toLocaleString()}</span>
+                        </div>
+                        <div class="ticket-title">${ticket.assunto}</div>
+                        <div class="ticket-body">${ticket.mensagem}</div>
+                    `;
+                }
+                container.appendChild(card);
+            });
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = '<p style="color: #ef4444; text-align: center;">Erro de conexão com o servidor.</p>';
+        }
+    }
+
+    document.getElementById('btn-home').addEventListener('click', () => {
+        window.location.href = 'index.html';
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+        logout();
+        alert('Logout efetuado com sucesso.');
+        carregarChamados();
+    });
+
+    document.getElementById('btn-refresh').addEventListener('click', carregarChamados);
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+        initSecurityToggle();
+        carregarChamados();
+    });
+</script>
+
+</body>
+</html>

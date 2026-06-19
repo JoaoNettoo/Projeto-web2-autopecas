@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Fornecedor, Peca, Pedido, ItemPedido
+from .models import Fornecedor, Peca, Pedido, ItemPedido, MensagemSuporte
 
 class FornecedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,4 +58,9 @@ class PedidoSerializer(serializers.ModelSerializer):
         pedido.total = total
         pedido.save()
         return pedido
+
+class MensagemSuporteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MensagemSuporte
+        fields = '__all__'
 
