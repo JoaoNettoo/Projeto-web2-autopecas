@@ -5,6 +5,9 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
+Os slides utilizados na apresentação podem ser acessados no link abaixo:
+
+🔗 https://canva.link/9r7hy6eydd16z1i
 ---
 
 ## 📖 Descrição
@@ -191,7 +194,7 @@ Os experimentos devem ser executados apenas em ambientes controlados e autorizad
 
 ## 👨‍💻 Autores
 
-João Barbosa & André Luiz.
+João Barbosa & André Sales.
 
 Projeto desenvolvido para fins acadêmicos na disciplina de Segurança da Informação IFPE.
 =======
